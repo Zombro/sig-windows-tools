@@ -21,9 +21,14 @@ $na = Get-NetRoute | Where { $_.DestinationPrefix -eq '0.0.0.0/0' } | Select-Obj
 $managementIP = (Get-NetIPAddress -ifIndex $na[0].ifIndex -AddressFamily IPv4).IPAddress
 
 #set info and save
-$cniJson.delegate.AdditionalArgs[0].Value.Settings.Exceptions = $serviceSubnet, $podSubnet
-$cniJson.delegate.AdditionalArgs[1].Value.Settings.DestinationPrefix = $serviceSubnet
-$cniJson.delegate.AdditionalArgs[2].Value.Settings.ProviderAddress = $managementIP
+# $cniJson.delegate.AdditionalArgs[0].Value.Settings.Exceptions = $serviceSubnet, $podSubnet
+# $cniJson.delegate.AdditionalArgs[1].Value.Settings.DestinationPrefix = $serviceSubnet
+# $cniJson.delegate.AdditionalArgs[2].Value.Settings.DestinationPrefix = $managementIP
+
+$cniJson.delegate.Policies[0].Settings.Exceptions = $serviceSubnet, $podSubnet # , "192.168.7.0/24"
+$cniJson.delegate.Policies[1].Settings.DestinationPrefix = $serviceSubnet
+$cniJson.delegate.Policies[2].Settings.DestinationPrefix = ($managementIP + "/32")
+
 mkdir -force $env:CNI_CONFIG_PATH
 Set-Content -Path $env:CNI_CONFIG_PATH/10-flannel.conf ($cniJson | ConvertTo-Json -depth 100)
 
@@ -37,4 +42,4 @@ write-host $env:POD_NAME
 write-host $env:POD_NAMESPACE
 
 Write-Host "Starting flannel"
-& $env:CONTAINER_SANDBOX_MOUNT_POINT/flannel/flanneld.exe --kube-subnet-mgr --iface $managementIP
+& $env:CONTAINER_SANDBOX_MOUNT_POINT/flannel/flanneld.exe --kube-subnet-mgr --iface $managementIP --v=10 --ip-masq

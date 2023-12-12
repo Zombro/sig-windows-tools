@@ -19,7 +19,7 @@ function GetSourceVip($NetworkName)
         $subnet = $hnsNetwork.Subnets[0].AddressPrefix
 
         $ipamConfig = @"
-        {"cniVersion": "0.3.0", "name": "$NetworkName", "ipam":{"type":"host-local","ranges":[[{"subnet":"$subnet"}]],"dataDir":"/var/lib/cni/networks"}}
+        {"cniVersion": "1.0.0", "name": "$NetworkName", "ipam":{"type":"host-local","ranges":[[{"subnet":"$subnet"}]],"dataDir":"/var/lib/cni/networks"}}
 "@
 
         Write-Host "ipam sourcevip request: $ipamConfig"
@@ -59,14 +59,19 @@ Write-Host "Finding sourcevip"
 $vip = GetSourceVip -NetworkName $env:KUBE_NETWORK
 Write-Host "sourceip: $vip"
 
-$arguements = "--v=6",
+$arguments = "--v=6",
         "--hostname-override=$env:NODE_NAME",
-        "--feature-gates=WinOverlay=true",
+        # "--feature-gates=WinOverlay=true",
+        "--feature-gates=WinDSR=true",
+        "--enable-dsr=true",
         "--proxy-mode=kernelspace",
         "--source-vip=$vip",
+        # "--masquerade-all=true",
+        "--detect-local-mode=ClusterCIDR",
+        "--cluster-cidr=$env:CLUSTER_CIDR",
         "--kubeconfig=$env:CONTAINER_SANDBOX_MOUNT_POINT/mounts/var/lib/kube-proxy/kubeconfig-win.conf"
 
-$exe = "$env:CONTAINER_SANDBOX_MOUNT_POINT/kube-proxy/kube-proxy.exe " + ($arguements -join " ")
+$exe = "$env:CONTAINER_SANDBOX_MOUNT_POINT/kube-proxy/kube-proxy.exe " + ($arguments -join " ")
 
 Write-Host "Starting $exe"
 Invoke-Expression $exe
