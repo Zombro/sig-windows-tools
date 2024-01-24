@@ -32,7 +32,7 @@ if [[ -n "$flannelVersion" || "$all" == "1" ]] ; then
   # set default
   flannelVersion=${flannelVersion:-"v0.24.0"}
   pushd flanneld
-  docker buildx build --provenance=false --sbom=false --platform windows/amd64 --output=type=registry --pull --build-arg=flannelVersion=$flannelVersion -f Dockerfile -t $repository/flannel:$flannelVersion-hostprocess .
+  docker buildx build --provenance=false --sbom=false --platform windows/amd64 --output=type=registry --pull --build-arg=flannelVersion=$flannelVersion -f Dockerfile -t $repository/flannel:$flannelVersion-hostprocess-hnsv2 .
   popd
 fi
 
@@ -40,6 +40,6 @@ if [[ -n "$proxyVersion" || "$all" == "1" ]] ; then
   # set default
   proxyVersion=${proxyVersion:-"v1.28.2"}
   pushd kube-proxy
-  docker buildx build --provenance=false --sbom=false --platform windows/amd64 --output=type=registry --pull --build-arg=k8sVersion=$proxyVersion -f Dockerfile -t $repository/kube-proxy:$proxyVersion-flannel-hostprocess .
+  docker buildx build --provenance=false --sbom=false --platform windows/amd64 --output=type=registry --pull --build-arg=k8sVersion=$proxyVersion -f Dockerfile -t $repository/kube-proxy:$proxyVersion-flannel-hostprocess-hnsv2 .
   popd
 fi

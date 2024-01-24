@@ -59,7 +59,7 @@ Write-Host "Finding sourcevip"
 $vip = GetSourceVip -NetworkName $env:KUBE_NETWORK
 Write-Host "sourceip: $vip"
 
-$arguments = "--v=6",
+$arguments = "--v=10",
         "--hostname-override=$env:NODE_NAME",
         # "--feature-gates=WinOverlay=true",
         "--feature-gates=WinDSR=true",

@@ -5,7 +5,8 @@ ARG k8sVersion="v1.28.5"
 
 WORKDIR /kube-proxy
 RUN curl -LO https://dl.k8s.io/$k8sVersion/bin/windows/amd64/kube-proxy.exe
-RUN curl -LO https://raw.githubusercontent.com/microsoft/SDN/master/Kubernetes/windows/hns.psm1
+# RUN curl -LO https://raw.githubusercontent.com/microsoft/SDN/master/Kubernetes/windows/hns.psm1
+RUN curl -LO https://raw.githubusercontent.com/microsoft/SDN/master/Kubernetes/windows/hns.v2.psm1
 
 FROM $BASE
 

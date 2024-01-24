@@ -20,11 +20,7 @@ data:
       "delegate": {
         "type": "win-bridge",
         "ApiVersion": 2,
-        "loopbackDSR": true,
-        "capabilities": {
-          "portMappings": true
-        },
-        "Policies": [
+        "HcnPolicyArgs": [
           {
             "Name": "EndpointPolicy",
             "Type": "OutBoundNAT",
@@ -148,9 +144,9 @@ spec:
           operator: Exists
       containers:
         - name: kube-flannel
-          image: sigwindowstools/flannel:FLANNEL_VERSION-hostprocess
+          # image: sigwindowstools/flannel:FLANNEL_VERSION-hostprocess
           # template this image to something like this:
-          # image: zombro/flannel:v0.24.2-hostprocess
+          image: zombro/flannel:v0.24.2-hostprocess-hnsv2
           imagePullPolicy: Always
           volumeMounts:
             - name: flannel-cfg
@@ -171,13 +167,13 @@ spec:
               # There is also a follow up issue on the flannel side: https://github.com/flannel-io/flannel/issues/1772
               # Once this issue is solved we should be able to remove the custom host and port to the kubernetes api server
             - name: KUBERNETES_SERVICE_HOST
-              value: KUBERNETES_SERVICE_HOST_VALUE
+              # value: KUBERNETES_SERVICE_HOST_VALUE
               # template this value to something like this:
-              # value: k8s-p28-master.pflnet.net
+              value: k8s-p28-master.pflnet.net
             - name: KUBERNETES_SERVICE_PORT
-              value: "KUBERNETES_SERVICE_PORT_VALUE"
+              # value: "KUBERNETES_SERVICE_PORT_VALUE"
               # template this value to something like this:
-              # value: "16443"
+              value: "16443"
             - name: POD_NAME
               valueFrom:
                 fieldRef:
