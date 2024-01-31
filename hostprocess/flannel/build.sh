@@ -23,7 +23,8 @@
 # see images at https://hub.docker.com/repositories/zombro
 repository=zombro
 flannelVersion=v0.24.2
-proxyVersion=v1.28.6
+# flannelVersion=v0.15.1
+proxyVersion=v1.28.2 # was 1.28.6
 
 docker buildx create --name img-builder --use --platform windows/amd64
 trap 'docker buildx rm img-builder' EXIT
@@ -40,6 +41,6 @@ if [[ -n "$proxyVersion" || "$all" == "1" ]] ; then
   # set default
   proxyVersion=${proxyVersion:-"v1.28.2"}
   pushd kube-proxy
-  docker buildx build --provenance=false --sbom=false --platform windows/amd64 --output=type=registry --pull --build-arg=k8sVersion=$proxyVersion -f Dockerfile -t $repository/kube-proxy:$proxyVersion-flannel-hostprocess-hnsv2 .
+  docker buildx build --provenance=false --sbom=false --platform windows/amd64 --output=type=registry --pull --build-arg=k8sVersion=$proxyVersion -f Dockerfile -t $repository/kube-proxy:$proxyVersion-flannel-hostprocess .
   popd
 fi
