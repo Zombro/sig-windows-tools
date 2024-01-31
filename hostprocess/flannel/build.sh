@@ -33,7 +33,7 @@ if [[ -n "$flannelVersion" || "$all" == "1" ]] ; then
   # set default
   flannelVersion=${flannelVersion:-"v0.24.0"}
   pushd flanneld
-  docker buildx build --provenance=false --sbom=false --platform windows/amd64 --output=type=registry --pull --build-arg=flannelVersion=$flannelVersion -f Dockerfile -t $repository/flannel:$flannelVersion-hostprocess-hnsv2 .
+  docker buildx build --provenance=false --sbom=false --platform windows/amd64 --output=type=registry --pull --build-arg=flannelVersion=$flannelVersion -f Dockerfile -t $repository/flannel:$flannelVersion-hostprocess .
   popd
 fi
 

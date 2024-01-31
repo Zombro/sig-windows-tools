@@ -106,7 +106,7 @@ spec:
         - name: kube-flannel
           # image: sigwindowstools/flannel:FLANNEL_VERSION-hostprocess
           # template this image to something like this:
-          image: zombro/flannel:v0.24.2-hostprocess-hnsv2
+          image: zombro/flannel:v0.24.2-hostprocess
           # image: zombro/flannel:v0.15.1-hostprocess
           imagePullPolicy: Always
           volumeMounts:
