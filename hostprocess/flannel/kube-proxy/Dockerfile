@@ -1,11 +1,12 @@
-ARG BASE="mcr.microsoft.com/oss/kubernetes/windows-host-process-containers-base-image:v0.1.0"
+ARG BASE="mcr.microsoft.com/oss/kubernetes/windows-host-process-containers-base-image:v1.0.0"
 
 FROM --platform=linux/amd64 curlimages/curl as bins
-ARG k8sVersion="v1.22.0"
+ARG k8sVersion="v1.28.2"
 
 WORKDIR /kube-proxy
 RUN curl -LO https://dl.k8s.io/$k8sVersion/bin/windows/amd64/kube-proxy.exe
 RUN curl -LO https://raw.githubusercontent.com/microsoft/SDN/master/Kubernetes/windows/hns.psm1
+# RUN curl -LO https://raw.githubusercontent.com/microsoft/SDN/master/Kubernetes/windows/hns.v2.psm1
 
 FROM $BASE
 

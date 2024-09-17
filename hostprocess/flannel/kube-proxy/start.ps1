@@ -11,15 +11,32 @@ function GetSourceVip($NetworkName)
 
         if (Test-Path $sourceVipJson) {
                 $sourceVipJSONData = Get-Content $sourceVipJson | ConvertFrom-Json
+                # $vip =  (($sourceVipJSONData.ips[0].address.Split("/")[0]) -split "\.")[0..2] + 0 -join "."
                 $vip = $sourceVipJSONData.ips[0].address.Split("/")[0]
                 return $vip
         }
 
         $hnsNetwork = Get-HnsNetwork | ? Name -EQ $NetworkName.ToLower()
         $subnet = $hnsNetwork.Subnets[0].AddressPrefix
+        $rangeStart = $subnet.Split("/")[0].Split(".")[0..2] + 3 -join "."
 
         $ipamConfig = @"
-        {"cniVersion": "0.3.0", "name": "$NetworkName", "ipam":{"type":"host-local","ranges":[[{"subnet":"$subnet"}]],"dataDir":"/var/lib/cni/networks"}}
+        {
+                "cniVersion": "0.3.0",
+                "name": "$NetworkName",
+                "ipam": {
+                  "type": "host-local",
+                  "ranges": [
+                        [
+                                {
+                                        "subnet": "$subnet",
+                                        "rangeStart": "$rangeStart"
+                                }
+                        ]
+                ],
+                  "dataDir": "/var/lib/cni/networks"
+                }
+              }
 "@
 
         Write-Host "ipam sourcevip request: $ipamConfig"
@@ -41,6 +58,7 @@ function GetSourceVip($NetworkName)
         Remove-Item env:CNI_PATH
 
         $sourceVipJSONData = Get-Content $sourceVipJson | ConvertFrom-Json
+        # $vip = (($sourceVipJSONData.ips[0].address.Split("/")[0]) -split "\.")[0..2] + 0 -join "."
         $vip = $sourceVipJSONData.ips[0].address.Split("/")[0]
         return $vip
 }
@@ -59,14 +77,22 @@ Write-Host "Finding sourcevip"
 $vip = GetSourceVip -NetworkName $env:KUBE_NETWORK
 Write-Host "sourceip: $vip"
 
-$arguements = "--v=6",
+$arguments = "--v=5",
         "--hostname-override=$env:NODE_NAME",
-        "--feature-gates=WinOverlay=true",
+        "--feature-gates=WinOverlay=true,WindowsHostNetwork=false",
+        # "--feature-gates=WinDSR=true",
+        # "--enable-dsr=true",
         "--proxy-mode=kernelspace",
         "--source-vip=$vip",
+        "--network-name='cbr0'",
+        # "--masquerade-all=true",
+        # "--detect-local-mode=BridgeInterface",
+        # "--pod-bridge-interface='vEthernet (cbr0_ep)'",
+        # "--detect-local-mode=ClusterCIDR",
+        "--cluster-cidr=$env:CLUSTER_CIDR",
         "--kubeconfig=$env:CONTAINER_SANDBOX_MOUNT_POINT/mounts/var/lib/kube-proxy/kubeconfig-win.conf"
 
-$exe = "$env:CONTAINER_SANDBOX_MOUNT_POINT/kube-proxy/kube-proxy.exe " + ($arguements -join " ")
+$exe = "$env:CONTAINER_SANDBOX_MOUNT_POINT/kube-proxy/kube-proxy.exe " + ($arguments -join " ")
 
 Write-Host "Starting $exe"
 Invoke-Expression $exe
